@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%=user?user.weixin_companyname||user.companyname:"国际邮轮度假中心"%>  产品介绍</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/cruiseLiner.css" rel="stylesheet" type="text/css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script>
+        $(function(){
+            $(".whitebg").css("height",$(window).height());
+            if(wx){
+                wx.config({
+                    debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                    appId:"<%=weixin?weixin.appId:''%>",
+                    timestamp:<%=weixin?weixin.timestamp:''%>,
+                    nonceStr:"<%=weixin?weixin.nonceStr:''%>",
+                    signature:"<%=weixin?weixin.signature:''%>",
+                    jsApiList:[
+                        'checkJsApi',
+                        'onMenuShareTimeline',
+                        'onMenuShareAppMessage',
+                        'onMenuShareQQ',
+                        'onMenuShareWeibo',
+                        'hideMenuItems',
+                        'showMenuItems',
+                        'hideAllNonBaseMenuItem',
+                        'showAllNonBaseMenuItem',
+                        'translateVoice',
+                        'startRecord',
+                        'stopRecord',
+                        'onRecordEnd',
+                        'playVoice',
+                        'pauseVoice',
+                        'stopVoice',
+                        'uploadVoice',
+                        'downloadVoice',
+                        'chooseImage',
+                        'previewImage',
+                        'uploadImage',
+                        'downloadImage',
+                        'getNetworkType',
+                        'openLocation',
+                        'getLocation',
+                        'hideOptionMenu',
+                        'showOptionMenu',
+                        'closeWindow',
+                        'scanQRCode',
+                        'chooseWXPay',
+                        'openProductSpecificView',
+                        'addCard',
+                        'chooseCard',
+                        'openCard'
+                    ]
+                });
+                wx.ready(function(){
+                    wx.onMenuShareTimeline({
+                        title: '<%=product.title%>', // 分享标题
+                        link:'http://wap.huiyoulun.com/detail/<%=product.id%><%=user?"?openid="+user.openid:""%>', // 分享链接
+                        imgUrl: '<%=images[0].url%>', // 分享图标
+                        success: function () {
+                            alert("分享朋友圈成功");
+                        },
+                        cancel: function () {
+                            alert("分享朋友圈失败");
+                        }
+                    });
+
+                    wx.onMenuShareAppMessage({
+                        title: '<%=product.title%>', // 分享标题
+                        desc: '<%=product.keyFeature?(product.keyFeature).replace(/\r\n/g,""):""%>', // 分享描述
+                        link: 'http://wap.huiyoulun.com/detail/<%=product.id%><%=user?"?openid="+user.openid:""%>', // 分享链接
+                        imgUrl: '<%=images[0].url%>', // 分享图标
+                        success: function () {
+                            alert("发送给朋友成功");
+                        },
+                        cancel: function () {
+                            alert("发送给朋友失败");
+                        }
+                    });
+                });
+            }
+
+            $("#booking").on("click",function(){
+                console.log("booking");
+                var name = $("#name").val();
+                var tel = $("#tel").val();
+                var email = $("#email").val();
+                var pid = $("#pid").val();
+                var sendtoid = $("#sendtoid").val();
+                if(name.replace(/^(\s|\xA0)+|(\s|\xA0)+$/g, '')==""){
+                    alert("姓名必填!");
+                    return;
+                }
+                if(tel.replace(/^(\s|\xA0)+|(\s|\xA0)+$/g, '')==""){
+                    alert("电话必填!");
+                    return;
+                }
+                $.ajax({
+                    url:"/sendMsg",
+                    method:"POST",
+                    data:{
+                        name:name,
+                        tel:tel,
+                        email:email,
+                        pid:pid,
+                        sendtoid:sendtoid
+                    }
+                }).done(function(data){
+                    if(data=="send success!"){
+                        $("#exampleModal").modal("hide");
+                        alert("预订发送成功!")
+                    } else {
+                        alert("预订发送失败!")
+                    }
+                });
+            });
+            var url = window.location.href;
+            var tmp = url.split("?tab=");
+            //init
+            <%for(var i=0;i<cabins.length;i++){%>
+                $("#menu"+<%=i%>).removeClass("active");
+            <%}%>    
+            $("#menu"+tmp[1]).addClass("active");
+            //init
+            <%for(var i=0;i<cabins.length;i++){%>
+                $("#room"+<%=i%>).attr("class","tab-pane");
+            <%}%>
+            $("#room"+tmp[1]).attr("class","tab-pane active");
+        });
+    </script>
+</head>
+
+<body>
+<div class="whitebg">
+<div class="title01">
+    <a href="/detail/<%=product.id%>"><i class="loginico02"></i></a><span>舱房价格</span>
+</div>
+<div class="cont01">
+    <!--说明文字-->
+    <div class="box01">
+        <p><%=product.title%></p>
+        <p><span class="wordIcon"><%=product.type==1?'单船票':'团队游'%></span>【<%=product.startLocation%>出发】出发日期：<%=product.startDate%></p>
+    </div>
+    <!--预定白底切换背景-->
+    <div class="bookBox">
+        <div role="tabpanel">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs bookTitle-tabs" role="tablist">
+                <%for(var i=0;i<cabins.length;i++){var c=cabins[i];%>
+                <li id="menu<%=i%>" role="presentation" class="<%=i==0?"active":""%>">
+                    <a href="#room<%=i%>" aria-controls="home" role="tab" data-toggle="tab">
+                        <%=c.cabinType%><br>
+                        <span class="price">￥<%=c.startingPrice%> </span><span class="f12">起</span>
+                    </a>
+                </li>
+                <%}%>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <%for(var i=0;i<cabins.length;i++){var c=cabins[i];%>
+                <div role="tabpanel" class="tab-pane <%=i==0?"active":""%>" id="room<%=i%>">
+                    <%c.categories.forEach(function(cat){%>
+                    <!--房型信息-->
+                    <div class="bookListCon">
+                        <div class="roominfo">
+                            <div class="roomName"><%=cat.cabinName%></div>
+                            <div class="roomPerNum">最大入住：<%=cat.checkInMax%>人</div>
+                        </div>
+                        <div class="perinfo">
+                            <span class="person">第1/2人</span>
+                            <span class="price">￥<%=cat.price%></span>
+                        </div>
+                        <%if(cat.price2!=""){%>
+                        <div class="perinfo">
+                            <span class="person">第3/4人</span>
+                            <span class="price">￥<%=cat.price2%></span>
+                        </div>
+                        <%}%>
+                        <%if(cat.priceChild!=""){%>
+                        <div class="perinfo">
+                            <span class="person">儿童</span>
+                            <span class="price">￥<%=cat.priceChild%></span>
+                        </div>
+                        <%}%>
+                    </div>
+                    <%});%>
+
+                    <!--说明-->
+                    <div class="bookListNotice">
+                        <h5>说明</h5>
+                        <p>各邮轮公司和旅行社对儿童的年龄界定以及收费政策上存在差异，请在订单确认前详细了解，谢谢！</p>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                    </div>
+                </div>
+                <%}%>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<!--底部连接-->
+<div class="bottomBtBox01">
+    <div class="linkbox">
+        <%if(user){%>
+        <a href="tel:<%=user.weixin_tel||user.telephone%>">电话咨询</a>
+        <%} else {%>
+        <a href="tel:4009986121">电话咨询</a>
+        <%}%>
+        <a href="#" data-toggle="modal" data-target="#exampleModal">在线预订</a>
+    </div>
+</div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">在线预订</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="name" class="control-label">姓名:</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="tel" class="control-label">电话:</label>
+                        <input type="text" class="form-control" id="tel" name="tel">
+                    </div>
+                    <div class="form-group">
+                        <label for="tel" class="control-label">邮箱:</label>
+                        <input type="text" class="form-control" id="email" name="email">
+                        <input type="hidden" class="form-control" id="pid" name="pid" value="<%=product.id%>">
+                        <input type="hidden" class="form-control" id="sendtoid" name="sendtoid" value="<%=user?user.id:37%>">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-warning" id="booking">预订</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

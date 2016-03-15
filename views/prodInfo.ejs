@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title><%=user?user.weixin_companyname||user.companyname:"国际邮轮度假中心"%>  产品介绍</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/cruiseLiner.css" rel="stylesheet" type="text/css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script type="text/javascript">
+        $(document).ready( function() {
+            wx.config({
+                debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId:"<%=weixin?weixin.appId:''%>",
+                timestamp:<%=weixin?weixin.timestamp:''%>,
+                nonceStr:"<%=weixin?weixin.nonceStr:''%>",
+                signature:"<%=weixin?weixin.signature:''%>",
+                jsApiList:[
+                    'checkJsApi',
+                    'onMenuShareTimeline',
+                    'onMenuShareAppMessage',
+                    'onMenuShareQQ',
+                    'onMenuShareWeibo',
+                    'hideMenuItems',
+                    'showMenuItems',
+                    'hideAllNonBaseMenuItem',
+                    'showAllNonBaseMenuItem',
+                    'translateVoice',
+                    'startRecord',
+                    'stopRecord',
+                    'onRecordEnd',
+                    'playVoice',
+                    'pauseVoice',
+                    'stopVoice',
+                    'uploadVoice',
+                    'downloadVoice',
+                    'chooseImage',
+                    'previewImage',
+                    'uploadImage',
+                    'downloadImage',
+                    'getNetworkType',
+                    'openLocation',
+                    'getLocation',
+                    'hideOptionMenu',
+                    'showOptionMenu',
+                    'closeWindow',
+                    'scanQRCode',
+                    'chooseWXPay',
+                    'openProductSpecificView',
+                    'addCard',
+                    'chooseCard',
+                    'openCard'
+                ]
+            });
+            wx.ready(function(){
+                wx.onMenuShareTimeline({
+                    title: '<%=product.title%>', // 分享标题
+                    link:'http://wap.huiyoulun.com/detail/<%=product.id%><%=user?"?openid="+user.openid:""%>', // 分享链接
+                    imgUrl: '<%=images[0].url%>', // 分享图标
+                    success: function () {
+                        alert("分享朋友圈成功");
+                    },
+                    cancel: function () {
+                        alert("分享朋友圈失败");
+                    }
+                });
+
+                wx.onMenuShareAppMessage({
+                    title: '<%=product.title%>', // 分享标题
+                    desc: '<%=product.keyFeature?product.keyFeature.replace(/\r\n/g,""):""%>', // 分享描述
+                    link: 'http://wap.huiyoulun.com/detail/<%=product.id%><%=user?"?openid="+user.openid:""%>', // 分享链接
+                    imgUrl: '<%=images[0].url%>', // 分享图标
+                    success: function () {
+                        alert("发送给朋友成功");
+                    },
+                    cancel: function () {
+                        alert("发送给朋友失败");
+                    }
+                });
+            });
+
+            $('.prod_detailinfoTitle').click(function(){
+                if($(this).next().is(':hidden')){
+                    $(this).next().show();
+                    $(this).find('.arrowdown').removeClass('arrowdown').addClass('arrowup');
+                }else{
+                    $(this).next().hide();
+                    $(this).find('.arrowup').removeClass('arrowup').addClass('arrowdown');
+                }
+            });
+
+            $('.propulley_detailinfoTitle').click(function(){
+                if($(this).next().is(':hidden')){
+                    $(this).next().show();
+                    $(this).addClass('propulley_spread');
+                    $(this).find('.arrowdown').removeClass('arrowdown').addClass('arrowup');
+                }else{
+                    $(this).next().hide();
+                    $(this).removeClass('propulley_spread');
+                    $(this).find('.arrowup').removeClass('arrowup').addClass('arrowdown');
+                }
+            });
+
+            $("#booking").on("click",function(){
+                console.log("booking");
+                var name = $("#name").val();
+                var tel = $("#tel").val();
+                var email = $("#email").val();
+                var pid = $("#pid").val();
+                var sendtoid = $("#sendtoid").val();
+                if(name.replace(/^(\s|\xA0)+|(\s|\xA0)+$/g, '')==""){
+                    alert("姓名必填!");
+                    return;
+                }
+                if(tel.replace(/^(\s|\xA0)+|(\s|\xA0)+$/g, '')==""){
+                    alert("电话必填!");
+                    return;
+                }
+                $.ajax({
+                    url:"/sendMsg",
+                    method:"POST",
+                    data:{
+                        name:name,
+                        tel:tel,
+                        email:email,
+                        pid:pid,
+                        sendtoid:sendtoid
+                    }
+                }).done(function(data){
+                    if(data=="send success!"){
+                        $("#exampleModal").modal("hide");
+                        alert("预订发送成功!")
+                    } else {
+                        alert("预订发送失败!")
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+<!--标题-->
+<div class="title01">
+    <a href="/" style="text-decoration:none;">
+        <i class="centerico01"></i>
+    </a>
+    <span><%=product.title%></span>
+    <span>
+        <a href="/search" class="loginico03"></a>
+    </span>
+</div>
+<!--内容部分-->
+<div class="cont01">
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner" role="listbox">
+            <%for(var i in images){ %>
+            <%if(i==0){%>
+            <div class="item active">
+                <img src="<%=images[i].url%>" alt="...">
+
+            </div>
+            <%} else{%>
+            <div class="item">
+                <img src="<%=images[i].url%>" alt="...">
+            </div>
+            <%}%>
+            <%}%>
+        </div>
+        <div class="productlist_advinfo">
+            <div class="advname"><p><%=product.title%></p></div>
+            <div class="advnum">
+                <p class="codenum"><%=product.productNumber%></p>
+                <p class="price"><dfn>&yen;<%=product.minprice%></dfn>起</p>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+</div>
+<!--切换部分-->
+<div class="recomBox">
+    <div role="tabpanel">
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs pronav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#PreferentialRoutes" aria-controls="PreferentialRoutes" role="tab" data-toggle="tab">产品介绍</a></li>
+            <li role="presentation"><a href="#routeFeature" aria-controls="routeFeature" role="tab" data-toggle="tab">行程说明</a></li>
+            <li role="presentation"><a href="#EarlyPreferential" aria-controls="EarlyPreferential" role="tab" data-toggle="tab">邮轮介绍</a></li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content recomtab-content "  style="margin-bottom:80px;">
+            <!--产品信息tab-->
+            <div role="tabpanel" class="tab-pane active" id="PreferentialRoutes">
+                <div class="proinfo_info">
+                    <h3><b><%=product.title%></b></h3>
+                    <h4><span class="wordIcon"><%=product.type==1?"单船票":"团队游"%></span>【<%=product.startLocation%>出发】出发日期：<%=product.startDate%></h4>
+                    <p><%=product.route%></p>
+                </div>
+                <div class="proinfo_topdash">
+                    <h3><b>推荐理由</b></h3>
+                    <p><%-product.keyFeature%></p>
+                </div>
+                <!--舱型价格-->
+                <div class="proinfo_listbox">
+                    <h3>舱型价格</h3>
+                    <ul>
+                        <%for(var i in cabins){%>
+                        <li>
+                            <div class="imgbox"><img src="<%=cabins[i].imageUrl%>" ></div>
+                            <div class="rightinfo">
+                                <h4><%=cabins[i].cabinType%></h4>
+                                <div class="info"><p><%=cabins[i].size%>，<%=cabins[i].facility?cabins[i].facility.substr(0,25)+"......":""%></p><p><%=cabins[i].decks%></p></div>
+                                <div class="priceinfo">
+                                    <dfn>¥<%=cabins[i].startingPrice%></dfn>起
+                                    <!--<a href="#" class="linkbt" data-toggle="modal" data-target="#exampleModal">立即预订</a>-->
+                                    <a href="/priceDetail/<%=product.id%>?tab=<%=i%>" class="linkbt" >详细价格</a>
+                                </div>
+                            </div>
+                        </li>
+                        <%}%>
+                    </ul>
+                </div>
+                <!--费用说明-->
+                <div class="prod_detailinfoTitle"><i class="proinfo_icoprice"></i><h5 class="arrowdown">费用说明</h5></div>
+                <div class="prod_detailinfobox">
+                    <div class="prod_detailinfo">
+                        <b>费用包含</b>
+                        <%for(var i in fees.includedFees){%>
+                        <p><%=parseInt(i)+1%>.<%=fees.includedFees[i].name%>&nbsp;<%=fees.includedFees[i].comment%></p>
+                        <%}%>
+                        <b>费用不包含</b>
+                        <%for(var i in fees.excludedFees){%>
+                        <p><%=parseInt(i)+1%>.<%=fees.excludedFees[i].name%>&nbsp;<%=fees.excludedFees[i].comment%></p>
+                        <%}%>
+                    </div>
+                </div>
+                <!--预订须知-->
+                <div class="prod_detailinfoTitle"><i class="proinfo_icoorder"></i><h5 class="arrowdown">预订须知</h5></div>
+                <div class="prod_detailinfobox">
+                    <div class="prod_detailinfo">
+                        <p><%-product.bookingNote%></p>
+                    </div>
+                </div>
+                <!--签证说明-->
+                <div class="prod_detailinfoTitle"><i class="proinfo_icovisa"></i><h5 class="arrowdown">签证说明</h5></div>
+                <div class="prod_detailinfobox">
+                    <div class="prod_detailinfo">
+                        <p><%-product.visaComment%></p>
+                    </div>
+                </div>
+
+            </div>
+            <!--行程说明-->
+            <div role="tabpanel" class="tab-pane" id="routeFeature">
+                <div class="protrip_box">
+                    <%for(var i in travelSchedule){%>
+                    <div class="tripbox cur">
+                        <div class="tripTitle">
+                            <div class="dotico"></div>
+                            <h3>第<%=travelSchedule[i].dayNumber%>天 <%=travelSchedule[i].location%></h3>
+                            <h4>
+                                <span class="arrive"><%=travelSchedule[i].departureTime%>抵达</span>
+                                <span class="sail"><%=travelSchedule[i].arrivalTime%>出发</span>
+                                <i class="arrow"></i>
+                            </h4>
+                            <div class="tripinfo"><%=travelSchedule[i].description%></div>
+                        </div>
+                    </div>
+                    <%}%>
+                </div>
+                <!--提示-->
+                <div class="protrip_notice">
+                    <h4>提示</h4>
+                    <p>我们会在出发前2-3个工作日组织召开出团说明会，望您能抽空参加，具体时间以短信通知为准。 </p>
+                </div>
+                <!--岸上游行程-->
+                <div class="prod_detailinfoTitle"><i class="proinfo_icotrip"></i><h5 class="arrowdown">岸上游行程</h5></div>
+                <div class="prod_detailinfobox">
+                    <div class="prod_detailinfo">
+                        <%-product.excursion%>
+                    </div>
+                </div>
+            </div>
+            <!--游轮介绍-->
+            <div role="tabpanel" class="tab-pane" id="EarlyPreferential">
+                <div class="propulleybox">
+                    <div class="pulleytab">
+                        <h3><%=product.shipCompany%> · <%=product.shipName%></h3>
+                        <!--<h4>Mariner of the Seas<div class="starlevel"></div></h4>-->
+                        <ul>
+                            <li><p><strong>船籍：</strong><%=ship.txtShipNationality%></p></li>
+                            <li><p><strong>甲板数：</strong><%=ship.txtDeckFloorTotal%></p></li>
+                            <li><p><strong>吨位：</strong><%=ship.txtShipWeight%></p></li>
+                            <li><p><strong>载客数：</strong><%=ship.txtPassengerTotal%></p></li>
+                            <li><p><strong>长宽：</strong><%=ship.txtShipLength%>/<%=ship.txtShipWidth%></p></li>
+                            <li><p><strong>房间数：</strong><%=ship.txtRoomTotal%></p></li>
+                        </ul>
+                    </div>
+                    <div class="pulleytabinfo">
+                        <%-ship.txtShipAbstract%>
+                    </div>
+                </div>
+                <!--舱房类型-->
+                <div class="propulley_detailinfoTitle"><i class="propulley_icoproom"></i><h5 class="arrowdown">舱房类型</h5></div>
+                <div class="propulley_detailinfobox">
+                    <div class="proinfo_listbox propulley_listbox">
+                        <ul>
+                            <%for(var i in cabins){%>
+                            <li>
+                                <div class="imgbox"><img src="<%=cabins[i].imageUrl%>" ></div>
+                                <div class="rightinfo">
+                                    <h4><%=cabins[i].cabinType%></h4>
+                                    <div class="info"><p><%=cabins[i].size%></p><p><%=cabins[i].decks%></p></div>
+                                    <div class="detailinfo"><%=cabins[i].facility%></div>
+                                </div>
+                            </li>
+                            <%}%>
+                        </ul>
+                    </div>
+                </div>
+
+                <!--娱乐设施-->
+                <div class="propulley_detailinfoTitle"><i class="propulley_icomusic"></i><h5 class="arrowdown">娱乐设施</h5></div>
+                <div class="propulley_detailinfobox">
+                    <div class="proinfo_listbox propulley_listbox">
+                        <ul>
+                            <%for(var i in entertainment){%>
+                            <li>
+                                <div class="imgbox"><img src="<%=entertainment[i].imgUrl%>" ></div>
+                                <div class="rightinfo">
+                                    <h4><%=entertainment[i].name%></h4>
+                                    <div class="detailinfo"><%=entertainment[i].description%></div>
+                                </div>
+                            </li>
+                            <%}%>
+                        </ul>
+                    </div>
+                </div>
+
+                <!--餐饮设施-->
+                <div class="propulley_detailinfoTitle"><i class="propulley_icofood"></i><h5 class="arrowdown">餐饮设施</h5></div>
+                <div class="propulley_detailinfobox">
+                    <div class="proinfo_listbox propulley_listbox">
+                        <ul>
+                            <%for(var i in culinary){%>
+                            <li>
+                                <div class="imgbox"><img src="<%=culinary[i].imgUrl%>" ></div>
+                                <div class="rightinfo">
+                                    <h4><%=culinary[i].name%></h4>
+                                    <div class="detailinfo">
+                                        <p><%=culinary[i].openTime%></p>
+                                        <p><%=culinary[i].fees%></p>
+                                        <p><%=culinary[i].reservation%></p>
+                                        <p><%=culinary[i].clothing%></p>
+                                    </div>
+                                </div>
+                            </li>
+                            <%}%>
+                        </ul>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- <a href="#" class="recomflexphone"></a>-->
+<!--底部连接-->
+<div class="bottomBtBox01">
+    <div class="linkbox">
+        <%if(user){%>
+        <a href="tel:<%=user.weixin_tel||user.telephone%>">电话咨询</a>
+        <%} else {%>
+        <a href="tel:4009986121">电话咨询</a>
+        <%}%>
+        <a href="#" data-toggle="modal" data-target="#exampleModal">在线预订</a>
+        <!--<a href="/priceDetail/<%=product.id%>" >详细价格</a>-->
+    </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">在线预订</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="name" class="control-label">姓名:</label>
+                        <input type="text" class="form-control" id="name" name="name">
+                    </div>
+                    <div class="form-group">
+                        <label for="tel" class="control-label">电话:</label>
+                        <input type="text" class="form-control" id="tel" name="tel">
+                    </div>
+                    <div class="form-group">
+                        <label for="tel" class="control-label">邮箱:</label>
+                        <input type="text" class="form-control" id="email" name="email">
+                        <input type="hidden" class="form-control" id="pid" name="pid" value="<%=product.id%>">
+                        <input type="hidden" class="form-control" id="sendtoid" name="sendtoid" value="<%=user?user.id:37%>">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-warning" id="booking">预订</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

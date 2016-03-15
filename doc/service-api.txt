@@ -1,0 +1,441 @@
+API文档
+
++++++++++++++++++++++++++++++++++++
+1. 接口测试服务器地址
+	http://localhost:1339
+
++++++++++++++++++++++++++++++++++++
+2. 搜索产品
+
+	URL: http://localhost:1339/product/getlist?type=2&page=1&max=5&startDate=2015-02&order=price&recommendedOnly=false
+
+	搜索参数(所有参数都不是必需的)：
+	type: 产品类型，值=1->单船票，值=2->团队游产品，默认搜索全部类型
+	page: 数据翻页的页码，从1开始，如果没有参数，默认为1
+	max: 最多查询多少条数据，默认为10个
+	startDate: 查询出发日期，年+月，默认搜索全部日期
+	order: 排序， 值=price -> 按价格从低到高排序, 值=startDate -> 按出发日期排序, 默认按产品发布日期排序
+	recommendedOnly: 特推产品, true -> 仅选择特推产品
+
+	返回搜索到的产品总数及产品列表
+	"productFoundTotal": 46,          <- 产品总数
+    "productList":                    <- 产品列表, 类型json数组
+      [
+        {
+            "id": 310,                <- 产品id
+            "productTitle": "2月12日大西洋号4晚5天日韩游", <- 产品标题
+            "productType": 2,          <- 产品类型, 1:单船票, 2：团队游产品
+            "startingPrice": 3699,     <- 起价
+            "startDate": "2015-2-12",  <- 出发日期
+            "durationDays": 5,         <- 旅程天数5天
+            "durationNights": 4,       <- 旅程天数4晚
+            "duration": "5天4晚",       <- 5天4晚
+            "startLocation": "上海",    <- 出发城市
+            "route": "上海-济州-福冈-航海日-上海",    <- 路线
+            "shipName": "大西洋号",      <- 船名
+            "shipRating": "四星",       <- 星级, 如果没有则为null
+            "shipCompany": "歌诗达邮轮", <- 船公司
+            "cruiseArea": "日韩"        <- 航区
+            ####### 如果参数里有recommendedOnly, 附加以下数据 ########
+            "isSpecial": 1,            <- 特推产品
+            "isEarlyBooking": 0,       <- 早订优惠产品
+            "isCheap": 0               <- 特惠产品
+        },
+        ...
+      ]
+
+    注意：如果发生系统错误，返回 {error: 错误信息}
+
++++++++++++++++++++++++++++++++++++
+3. 产品详情
+
+	URL: http://localhost:1339/product/getdetail?productId=310
+
+	参数(必需的)：	productId 产品ID
+
+	返回产品详细数据, 类型json, 结构:
+      {
+        "product": {}, 		        <- 产品基本数据
+        "images" : []               <- 邮轮相关图片
+        "entertainment" : []        <- 娱乐设施
+        "culinary" : []             <- 餐饮设施
+        "cabins": [                 <- （数组）产品价格数据，舱房类型、价格、数量
+            {
+              "cabinType":"内舱房",   <- 舱房种类
+              "startingPrice": 3699, <- 起价
+              "decks": "6F/7F/8F/9F/10F",     <- 楼层
+              "size": "15平方米",              <- 舱房面积
+              "facility": "两张单人床（可改成大床），独立卫浴空间...",     <- 设施
+              "imageUrl": "http://.../images/data/cabin/V01001C001_lg.jpg",
+              "categories":[]            <- (数组)舱房类型、价格、数量等
+            }
+          ],
+        "travelSchedule": []	     <- （数组）行程
+      }
+
+    注意：如果发生系统错误或没有找到相关产品，返回 {error: 错误信息}
+
+	返回值详细说明:
+      {
+        "product":      <- 产品基本数据
+          {
+            "id": 310,                            <- 产品id
+            "title": "2月12日大西洋号4晚5天日韩游",   <- 产品标题
+            "type": 2,                            <- 产品种类， 1->单船票, 2->团队游
+            "productNumber": "74-15-AT0212",      <- 产品编号
+            "startDate": "2015-2-12",             <- 出发日期
+            "durationDays": 5,
+            "durationNights": 4,
+            "startLocation": "上海",              <- 出发城市
+            "route": "上海-济州-福冈-航海日-上海",   <- 行程路线
+            "shipName": "大西洋号",                <- 邮轮名称
+            "shipRating": "四星",                 <- 邮轮星级
+            "shipCompany": "歌诗达邮轮",           <- 邮轮公司
+            "shipCompanyLogo": "http://.../images/data/shipcompanylogo/V02.png", <- 邮轮公司logo
+            "cruiseArea": "日韩",                 <- 航区
+            "visaApplicationUntil": "2015-1-05",  <- 签证截至日期
+            "visaComment": "请于预订后7个工作日内递交签证材料..",             <- 签证说明
+            "bookingNote": "歌诗达邮轮规定，...",   <- 预订须知
+            "excursion": "A线：【济州】汉拿树木园+新罗免税店...\r\nB线：...",  <- 岸上游
+            }
+        "images": [                           <- 图片, 数组。图片大小根据服务器设置, 暂定为在图片url后面加后缀, 比如小图的网址url+'!small'
+                  {
+                    "type": "ship",               <- 图片类型: 邮轮图片
+                    "url": "http://.../cruiseship/V02012.jpg"  <- 图片网址
+                  },
+                  ...
+                  {
+                    "type": "culinary",           <- 图片类型: 餐饮图片
+                    "url": "http://.../cruiseship/V02012R001.jpg"
+                  },
+                  ...
+                  {
+                    "type": "entertainment",       <- 图片类型: 娱乐设施图片
+                    "url": "http://.../cruiseship/V02012E001.jpg"
+                  },/
+                  ...
+            ]
+          },
+        "entertainment": [      <- 娱乐设施
+        {
+          "name": "珊瑚大剧院",
+          "description": "音乐剧\n拉斯维加斯激情之夜\n冰上表演\n时装表演\n游戏节目\n来宾才艺表演\n喜剧专场",
+          "imgUrl": "http://localhost:1339/images/data/entertainment/V01004E001_lg.jpg"
+        },
+        ...
+        ],
+        "culinary": [           <- 餐饮
+       {
+         "name": "牛排烧烤餐厅",        <- 餐厅名称
+         "type": 意大利,               <- 餐厅特色
+         "fees": "30美元/人（包括小费）,饮料需要按酒水牌上的价格另外支付",   <- 费用说明
+         "reservation": "需要预约，建议预订时或上船的第一天就进行预订",     <- 预订说明
+         "openTime": "18：00—22：00",                               <- 开放时间
+         "clothing": "我们建议穿商务休闲装，...穿鸡尾酒会礼服",            <- 着装要求
+         "imgUrl": "http://.../images/data/culinary/V01002R002_lg.jpg"  <- 餐厅图片
+       },
+       ...
+       ],
+        "cabins": [
+          {
+            "cabinType": "内舱房",              <- 舱房种类
+            "startingPrice": 3699,             <- 起价
+            "decks": "1F/2F/4F/5F/6F",     <- 甲板层, 可能为NULL
+            "size": "16-21平方米",          <- 舱房面积, 可能为NULL
+            "facility": "有两张可转换为一张大床的单人床，带淋浴的私人浴室...",             <- 舱房设施介绍, 可能为NULL
+            "imageUrl": "https://www.upyun.com/huiyoulun/ships/V02010C001.jpg",    <- 舱房图片地址
+            "categories": [
+               {
+                "posId": 2332,                 <- 该舱房价格的id，用于预订
+                "productId": 310,              <- 所属产品id
+                "cabinName": "标准内舱双人房",    <- 舱房类型名称
+                "checkInMax": 2,               <- 最大入住人数
+                "price": 3699,                 <- 第1/2人价格
+                "price2": 0,                   <- 第3/4人价格
+                "priceChild": 0,               <- 儿童价格
+                "amount": 10,                  <- 舱房数量
+                "tip": null,                   <- 小费
+                "comment": null                <- 价格说明
+               },
+               {
+                 "posId": 2333,
+                 "productId": 310,
+                 "cabinName": "高级内舱双人房",
+                 "decks": "1F/2F/4F/5F/6F/7F/8F",
+                 "size": "16-21平方米",
+                 "facility": "有两张可转换为一张大床的单人床，壁橱空间相当大，一个带淋浴的私人浴室，以及一个书桌，梳妆台，交互式电视，恒温空调，直拨电话，吹风机，迷你酒吧，私人保险箱，24小时客房服务。",
+                 "imageUrl": "https://www.upyun.com/huiyoulun/ships/V02010C002.jpg",
+                 "checkInMax": 2,
+                 "price": 3899,
+                 "price2": 0,
+                 "priceChild": 0,
+                 "amount": 10,
+                 "tip": null,
+                 "comment": null
+                },
+                ...
+             ]
+          },
+          ...
+        ],
+
+        "travelSchedule": [
+          {
+            "dayNumber": 1,					<- 行程第几天
+            "location": "上海",				<- 到达/出发城市或地点
+            "departureTime": "00:00:00",	<- 出发时间
+            "arrivalTime": "17:00:00",		<- 抵达时间
+            "description": "今日邮轮预计于北京时间17点启航离港，开始完美的海上之旅...",	<- 日程描述
+            "breakfast": "不含",				<- 早餐
+            "lunch": "不含",					<- 午餐
+            "dinner": "邮轮",				<- 晚餐
+            "overnightStay": "邮轮"			<- 夜宿
+          },
+          ...
+        ]
+      }
+
++++++++++++++++++++++++++++++++++++
+4. 费用说明
+
+    URL: http://localhost:1339/product/getfees?productId=250
+
+    参数(必需的)：	productId 产品ID
+
+    返回产品详细数据, 类型json, 结构:
+    {
+      "fees": {
+        "includedFees": [       <- 包含的费用
+          {
+            name:"船票费用",
+            comment: "邮轮免费餐厅用餐，邮轮免费娱乐活动、表演等" <- 船票费用说明
+          },
+          {
+            name:"港务费",
+            fee: 0,             <- 港务费(金额)
+            comment: ""         <- 港务费说明
+          },
+          {
+            name:"小费",
+            comment: ""            <- 小费说明
+          },
+          {
+            name:"签证费",
+            fee: 0,                <- 签证费(金额)
+            comment: "新加坡、泰国签证费；*（泰国个人旅游签...续费）" <- 签证费说明
+          },
+          {
+            name: "领队派遣费"
+            fee: 0,               <- 领队派遣费(金额)
+            comment: ""        <- 领队派遣费说明
+          },
+          {
+            name: "邮轮餐厅费用",
+            comment: ""     <- 邮轮餐厅费用说明
+          },
+          {
+            name: "出发地至港口交通费",
+            comment: "国际间往返机票及税务"   <- 出发地至港口交通费说明
+          },
+          {
+            name: "旅游保险费用",
+            comment: "送：旅游意外保险"     <- 旅游保险费用说明
+          },
+          {
+            name: "其他费用",
+            comment: "行程中所列的船前船后观光及景点门票" <- 其他费用说明
+          }
+        ],
+        "excludedFees": [       <- 不包含的费用
+          {
+            name: "岸上观光费",
+            fee: 0,                            <- 岸上观光费(金额)
+            comment: "港口的岸上观光费用"      <- 岸上观光费说明
+          },
+          {
+            name: "邮轮免费娱乐活动",
+            comment: ""                 <- 邮轮免费娱乐活动说明
+          },
+          {
+            name: "护照费",
+            comment: ""                      <- 护照费说明
+          },
+          {
+            name: "邮轮单人房差价费用",
+            comment: ""                    <- 邮轮单人房差价费用说明
+          },
+          {
+            name: "邮轮上私人消费费用",
+            comment: ""                  <- 邮轮上私人消费费用说明
+          }
+        ]
+      }
+    }
+
+    注意：如果发生系统错误返回 {error: 错误信息}
++++++++++++++++++++++++++++++++++++
+5. 航区
+
+    URL: http://localhost:1339/cruisearea/getall
+    返回json数组
+    [
+      {
+        "id": 1,            <- 航区ID
+        "name": "地中海"     <- 航区名称
+      },
+      {
+        "id": 2,
+        "name": "欧洲"
+      },
+      {
+        "id": 3,
+        "name": "加勒比海"
+      },
+      {
+        "id": 4,
+        "name": "阿拉斯加"
+      },
+      {
+        "id": 5,
+        "name": "澳洲新西兰"
+      },
+      {
+        "id": 6,
+        "name": "日韩"
+      },
+      {
+        "id": 7,
+        "name": "东南亚"
+      },
+      ...
+    ]
+
++++++++++++++++++++++++++++++++++
+6. 出发城市
+
+    URL: http://localhost:1339/travellocation/getStartLocations
+
+    返回json数组
+    [
+      {
+        "name": "上海"
+      },
+      {
+        "name": "深圳"
+      },
+      {
+        "name": "南京"
+      },
+      {
+        "name": "北京"
+      },
+      {
+        "name": "香港"
+      },
+      {
+        "name": "原居地"
+      },
+      ....
+    ]
+
+++++++++++++++++++++++++++++++++++
+7. 邮轮公司和所属邮轮
+
+    URL: http://localhost:1339/ship/getcompanies
+    返回json数组
+    [
+      {
+        "company": {
+          "id": 1,                 <- 邮轮公司ID
+          "name": "皇家加勒比"       <- 邮轮公司名称
+        },
+        "ships": [                 <- 所属邮轮，数组
+          {
+            "id": 1,               <- 邮轮ID
+            "name": "海洋航行者号"   <- 邮轮名称
+          },
+          {
+            "id": 4,
+            "name": "海洋水手号"
+          },
+          {
+            "id": 6,
+            "name": "海洋绿洲号"
+          },
+          ...
+        ]
+      },
+      {
+        "company": {
+          "id": 2,
+          "name": "歌诗达邮轮"
+        },
+        "ships": [
+          {
+            "id": 25,
+            "name": "辉宏号"
+          },
+          {
+            "id": 29,
+            "name": "赛琳娜号"
+          },
+          {
+            "id": 33,
+            "name": "大西洋号"
+          },
+          {
+            "id": 34,
+            "name": "维多利亚号"
+          },
+          ...
+        ]
+      },
+      ...
+    ]
+
++++++++++++++++++++++++++++++++
+8. 登录帐户
+
+    URL: https://xxxhost/services/authuser //https://www.huiyoulun.com/services/authuser...
+
+    绑定接口改为bindWeChat?loginName=xxx&password=xxx&openId=xxx， 登陆接口authUser?openId=xxx, 也可以authUser?loginName=xxx&password=xxx,
+
+    参数(必须):
+        loginName(荟邮系统的用户邮箱地址或手机号),
+        password
+
+    返回json
+    {
+      "id" : 12,                     <- 用户id
+      "name": "XXX",                 <- 用户名
+      "company": "XXX国旅",           <- 公司简称
+      "department": "邮轮部",          <- 部门
+      "mobilePhone": "17649571936"    <- 手机号
+    }
+
+  9.http://117.121.25.228:1338/User/SendMessage?name=1&tel=2&email=3&product=4
+
+
+
+http://117.121.25.228:1338/product/get4calendar?time=%271429501244237%27&type=2&minDurationDays=2&maxDurationDays=14&cruiseArea=&departureLocation=&cruiseCompanyId=2&shipId=33
+http://117.121.25.228:1338/product/getSearchResult?time=%2714295012443434237%27&startDate=2015-05
+隔壁陈叔叔 11:43:32
+这个是产品搜索的接口
+隔壁陈叔叔 11:43:47
+参数对应的搜索选项我再写给你
+隔壁陈叔叔 11:46:40
+time 出发日期
+type 船票类型（1单船票，2团队游）
+minDurationDays 行程最少天数
+maxDurationDays 行程最多天数
+cruiseArea 航区
+departureLocation 出发港
+cruiseCompanyId 邮轮公司id
+shipId 船id
+
+http://127.0.0.1:1339/User/unbindWeChat?openId=123
+http://127.0.0.1:1339/User/getOption?id=56
+http://127.0.0.1:1339/User/setOption?id=56
+weixin_companyname,weixin_name,weixin_tel,weixin_1,weixin_2,weixin_3
+http://127.0.0.1:1339/Ship/getAllShipHasProduct
+http://117.121.25.228:1338/User/resetOption?id=24&openid=odZ6Yt8p5aYs5tOoWHosE8IyyzWI

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="search_h">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title><%=user?user.weixin_companyname||user.companyname:"国际邮轮度假中心"%>  搜索页面</title>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/cruiseLiner.css" rel="stylesheet" type="text/css">
+</head>
+
+<body class="search_h" style="background: #EFEDEE;">
+    <!--标题-->
+    <div class="title01">
+        <span><a href="/"><i class="centerico01"></i><span></span></a></span>
+    </div>
+    <!--内容部分-->
+    <div class=" cont01 search_con">
+
+        <div class="search_leftnav">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs search_tabs" role="tablist">
+                <li role="presentation" class="active" id="firstTab">
+                    <div class="search_tabsTitle">
+                        <div class="leftorang"></div><div class="entry-trangle"></div>
+                    </div>
+                    <a href="#godate" aria-controls="godate" role="tab" data-toggle="tab"><i class="ico01"></i>出发日期</a>
+                </li>
+                <li role="presentation">
+                    <div class="search_tabsTitle">
+                        <div class="leftorang"></div><div class="entry-trangle"></div>
+                    </div>
+                    <a href="#sailarea" aria-controls="sailarea" role="tab" data-toggle="tab"><i class="ico02"></i>航行区域</a>
+                </li>
+                <li role="presentation">
+                    <div class="search_tabsTitle">
+                        <div class="leftorang"></div><div class="entry-trangle"></div>
+                    </div>
+                    <a href="#gocity" aria-controls="gocity" role="tab" data-toggle="tab"><i class="ico03"></i>出发城市</a>
+                </li>
+                <li role="presentation">
+                    <div class="search_tabsTitle">
+                        <div class="leftorang"></div><div class="entry-trangle"></div>
+                    </div>
+                    <a href="#company" aria-controls="company" role="tab" data-toggle="tab"><i class="ico04"></i>邮轮公司</a>
+                </li>
+                <li role="presentation">
+                    <div class="search_tabsTitle">
+                        <div class="leftorang"></div><div class="entry-trangle"></div>
+                    </div>
+                    <a href="#name" aria-controls="name" role="tab" data-toggle="tab"><i class="ico05"></i>邮轮名称</a>
+                </li>
+            </ul>
+        </div>
+        <!--搜索内容-->
+        <div class="search_searchbox tab-content">
+            <!--出发日期-->
+            <div role="tabpanel" class="tab-pane active" id="godate">
+                <ul class="search_chooselist startDate">
+                    <li data-id="" class="cur">所有日期</li>
+                    <%
+                    var d = new Date();
+                    for(var i=0;i<14;i++){%>
+                    <li data-id="<%=d.getFullYear()+"-"+((d.getMonth()+1)<10?"0"+(d.getMonth()+1):(d.getMonth()+1))%>"><%=d.getFullYear()+"年"+(d.getMonth()+1)+"月"%></li>
+                    <% d.setMonth(d.getMonth()+1)}
+                    %>
+                </ul>
+            </div>
+
+            <!--航行区域-->
+            <div role="tabpanel" class="tab-pane" id="sailarea">
+                <ul class="search_chooselist cruiseArea">
+                    <li data-id="" class="cur">所有航行区域</li>
+                    <%cruiseArea.forEach(function(c){%>
+                    <li data-id="<%=c.id%>"><%=c.name%></li>
+                    <%})%>
+                </ul>
+            </div>
+
+            <!--出发城市-->
+            <div role="tabpanel" class="tab-pane" id="gocity">
+                <ul class="search_chooselist travelLocation">
+                    <li data-id="" class="cur">所有出发城市</li>
+                    <%travelLocation.forEach(function(c){%>
+                    <li data-id="<%=c.name%>"><%=c.name%></li>
+                    <%})%>
+                </ul>
+            </div>
+            <!--邮轮公司-->
+            <div role="tabpanel" class="tab-pane" id="company">
+                <ul class="search_chooselist ship_company">
+                    <li data-id="" class="cur">所有邮轮公司</li>
+                    <%ship.forEach(function(c){%>
+                    <li data-id="<%=c.company.id%>"><%=c.company.name%></li>
+                    <%})%>
+                </ul>
+            </div>
+            <!--邮轮名称-->
+            <div role="tabpanel" class="tab-pane" id="name">
+                <ul class="search_chooselist shipId">
+                    <li data-id="" class="cur">所有邮轮名称</li>
+                    <%productShip.forEach(function(c){%>
+                    <li data-id="<%=c.id%>"><%=c.txtShipName%></li>
+                    <%})%>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <%if(user){%>
+    <a href="tel:<%=user.weixin_tel||user.telephone%>" class="recomflexphone"></a>
+    <%} else {%>
+    <a href="tel:4009986121" class="recomflexphone"></a>
+    <%}%>
+    <!--底部连接-->
+    <div class="bottomBtBox01">
+        <a href="#" class="search"><span>开始搜索</span><span class="searchico"></span></a>
+    </div>
+
+    <form action="/searchResult" method="post" id="search_form">
+        <input type="hidden" name="startDate" id="startDate" value="">
+        <input type="hidden" name="cruiseArea" id="cruiseArea" value="">
+        <input type="hidden" name="travelLocation" id="travelLocation" value="">
+        <input type="hidden" name="cruiseCompanyId" id="cruiseCompanyId" value="">
+        <input type="hidden" name="shipId" id="shipId" value="">
+    </form>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready( function() {
+            $('.nav-tabs').find("a").css("height", 50);
+            $("#firstTab").find("a").css("height", $(window).height()-300 );
+            var ships = {}
+            <%ship.forEach(function(c){%>
+            ships[<%=c.company.id%>] = []
+            <%c.ships.forEach(function(s){%>
+            ships[<%=c.company.id%>].push({id:"<%=s.id%>",name:"<%=s.name%>"})
+            <%})%>
+            <%})%>
+
+            $('.nav-tabs>li').on("click",function(){
+                $('.nav-tabs').find("a").css("height", 50);
+                $(this).find("a").css("height", $(window).height()-300 );
+            });
+
+            $('.search_chooselist').on("click","li",function(){
+                console.log(this);
+                $(this).parent().children().each(function(key,val){
+                    $(val).removeClass("cur");
+                });
+                $(this).addClass("cur");
+            });
+
+            $('.startDate>li').on("click",function(){
+                $("#startDate").val($(this).attr("data-id"));
+            });
+            $('.cruiseArea>li').on("click",function(){
+                $("#cruiseArea").val($(this).attr("data-id"));
+            });
+            $('.travelLocation>li').on("click",function(){
+                $("#travelLocation").val($(this).attr("data-id"));
+            });
+            $('.shipId').on("click","li",function(){
+                $("#shipId").val($(this).attr("data-id"));
+            });
+
+            $('.ship_company>li').on("click",function(){
+                $("#cruiseCompanyId").val($(this).attr("data-id"));
+                var data = ships[$(this).attr("data-id")];
+                $('.shipId').html("");
+                $('.shipId').append("<li class='cur'>所有邮轮名称</li>");
+                data.forEach(function(d){
+                    $('.shipId').append("<li data-id="+ d.id+">"+ d.name+"</li>");
+                });
+            });
+
+            $(".search").on("click",function(){
+                $("#search_form").submit();
+            });
+        });
+    </script>
+</body>
+</html>
+

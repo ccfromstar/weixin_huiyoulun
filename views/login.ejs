@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>国际邮轮度假中心 登录页</title>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/cruiseLiner.css" rel="stylesheet" type="text/css">
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script>
+        $(function(){
+            $("#loginForm").submit(function(e){
+                e.preventDefault();
+                $.ajax({
+                    url:"/dologin",
+                    data:{
+                        loginName:$("#loginName").val(),
+                        password:$("#password").val(),
+                        openid:$("#openid").val()
+                    },
+                    type:"POST"
+                }).done(function(data){
+                   //alert(data);
+                   if(data=="success"){
+                       alert("绑定成功");
+                       wx.closeWindow();
+                   } else {
+                       alert(data);
+                   }
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+<div class="title01">
+    <i class="loginico01"></i>
+    <span>用户登录&绑定微信号</span>
+</div>
+<div class="cont01">
+    <div class="box01">
+        <p>登陆&绑定微信号后，你可以直接将产品信息转发，转发内容将以您设定的公司名称及个人信息向客户展现！</p>
+        <p>客户不流失，销售尽掌握！</p>
+    </div>
+    <div class="loginbox">
+        <form class="form-horizontal" action="" method="post" role="form" id="loginForm">
+            <div class="form-group" style="margin-left:0px;;margin-right:0px;">
+                <label for="loginName" class="col-xs-4 control-label loginlable" style="line-height: 30px;">用户名</label>
+                <div class="col-xs-6">
+                    <input type="text" class="form-control input-sm" id="loginName" name="loginName" placeholder="邮箱/手机号码">
+                </div>
+            </div>
+            <div class="form-group" style="margin-left:0px;;margin-right:0px;">
+                <label for="password" class="col-xs-4 control-label loginlable" style="line-height: 30px;">密码</label>
+                <div class="col-xs-6">
+                    <input type="password" class="form-control input-sm" id="password" name="password" placeholder="Password">
+                </div>
+            </div>
+            <div class="form-group" style="margin-left:0px;;margin-right:0px;">
+                <div class="col-xs-offset-4 col-xs-6">
+                    <input type="hidden" id="openid" name="openid" value="<%=openid%>">
+                    <button type="submit" class="btn btn-xs loginBtn">登  录</button>
+                    <!--<a href="#" class="loginForgetPw" data-toggle="modal" data-target="#findPW">忘记密码</a>-->
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="box01">
+        <p>如您没有注册过荟邮轮，<br>请登录<a href="#">www.huiyoulun.com</a>进行注册。</p>
+        <div class="loginNotice">如您有任何疑问，请拨打<span>400-998-6121</span></div>
+    </div>
+</div>
+<div class="loginadv"></div>
+</body>
+</html>

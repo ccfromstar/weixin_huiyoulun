@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>国际邮轮度假中心 解除绑定</title>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/cruiseLiner.css" rel="stylesheet" type="text/css">
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <script>
+        $(function(){
+            wx.config({
+                debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+                appId:"<%=weixin?weixin.appId:''%>",
+                timestamp:<%=weixin?weixin.timestamp:''%>,
+                nonceStr:"<%=weixin?weixin.nonceStr:''%>",
+                signature:"<%=weixin?weixin.signature:''%>",
+                jsApiList:[
+                    'checkJsApi',
+                    'onMenuShareTimeline',
+                    'onMenuShareAppMessage',
+                    'onMenuShareQQ',
+                    'onMenuShareWeibo',
+                    'hideMenuItems',
+                    'showMenuItems',
+                    'hideAllNonBaseMenuItem',
+                    'showAllNonBaseMenuItem',
+                    'translateVoice',
+                    'startRecord',
+                    'stopRecord',
+                    'onRecordEnd',
+                    'playVoice',
+                    'pauseVoice',
+                    'stopVoice',
+                    'uploadVoice',
+                    'downloadVoice',
+                    'chooseImage',
+                    'previewImage',
+                    'uploadImage',
+                    'downloadImage',
+                    'getNetworkType',
+                    'openLocation',
+                    'getLocation',
+                    'hideOptionMenu',
+                    'showOptionMenu',
+                    'closeWindow',
+                    'scanQRCode',
+                    'chooseWXPay',
+                    'openProductSpecificView',
+                    'addCard',
+                    'chooseCard',
+                    'openCard'
+                ]
+            });
+            wx.ready(function(){
+                $("#btn_close").on("click",function(e){
+                    wx.closeWindow();
+                });
+            });
+            $(".whitebg").css("height",$(window).height());
+
+            $("#btn_unbind").on("click",function(e){
+                $.ajax({
+                    url:"/dounbind",
+                    data:{openid:$("#openid").val()},
+                    type :"POST"
+                }).done(function(data){
+                    if(data=="success"){
+                        alert("解绑成功");
+                        wx.closeWindow();
+                    } else {
+                        alert("解绑失败 "+data);
+                        wx.closeWindow();
+                    }
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+<div class="whitebg">
+    <div class="title01">
+        <i class="loginico01"></i><span>解除绑定微信号</span>
+    </div>
+    <div class="cont01">
+        <div class="box01">
+            <p>登陆&绑定微信号后，你可以直接将产品信息转发，转发内容将以您设定的公司名称及个人信息向客户展现！</p>
+            <p>客户不流失，销售尽掌握！</p>
+        </div>
+    </div>
+    <div class="center" style="padding-top: 50px;">
+        <input type="hidden" id="openid" name="openid" value="<%=openid%>">
+        <p>是否确认要解除绑定荟邮轮会员</p>
+    </div>
+    <div class="center" style="padding-top: 20px;">
+        <button id="btn_unbind" class="btn btn-xs loginBtn">确  定</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button id="btn_close" class="btn btn-xs closeBtn">关  闭</button>
+    </div>
+    <div class="navbar-fixed-bottom cont01">
+        <div class="box01">
+            <p>如您没有注册过荟邮轮，<br>请登录<a href="#">www.huiyoulun.com</a>进行注册。</p>
+            <div class="loginNotice">如您有任何疑问，请拨打<span>400-998-6121</span></div>
+        </div>
+        <div class="loginadv"></div>
+    </div>
+
+</div>
+
+</body>
+</html>
